@@ -1,0 +1,29 @@
+@startuml
+hide footbox
+title Invite a Friend: Not allowed to send more invitations
+autonumber
+actor User
+box "Client" #LightBlue
+boundary ShoppingListApp
+end box
+box "BackEnd" 
+control ShoppingManagementController
+control ShoppingService
+control UserRepository
+end box
+activate ShoppingListApp
+User -> ShoppingListApp: Send Invitation by phone number
+ShoppingListApp -> ShoppingManagementController: sendInvitation (telephoneNumber)
+activate ShoppingManagementController
+ShoppingManagementController -> ShoppingService: sendInvitation(telephoneNumber)
+activate ShoppingService
+ShoppingService-> UserRepository: getUserFriends(User)
+ShoppingService-> ShoppingService:checkInvitationLimit
+ShoppingService --> ShoppingManagementController: not allowed to send more invitation
+deactivate ShoppingService
+autonumber resume "<font color=red><b>Error "
+ShoppingManagementController --> ShoppingListApp: HTTP_KO
+deactivate ShoppingManagementController
+ShoppingListApp --> User: Invitation has NOT been sent
+deactivate ShoppingListApp
+@enduml

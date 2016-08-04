@@ -1,0 +1,44 @@
+@startuml
+hide footbox
+title Accept Invitation: Invitation ACCEPTED
+autonumber
+actor Friend
+boundary Device
+box "Client" #LightBlue
+boundary ShoppingListApp
+end box
+box "BackEnd"
+control UserStore
+control ShoppingManagementController
+control InvitationManagerService
+control UserRepository
+database ShoppingDB
+end box
+Friend->Device:Click on invitation
+Device->ShoppingListApp: Open App
+activate ShoppingListApp
+ShoppingListApp-->Friend: Show login
+Friend->ShoppingListApp: Login
+ShoppingListApp->UserStore:Login
+UserStore-->ShoppingListApp: Login OK
+ShoppingListApp -> ShoppingListApp: Redirect accept invitation
+ShoppingListApp-->Friend: Show accept invitation page
+Friend->ShoppingListApp: Accept invitation
+ShoppingListApp->ShoppingManagementController: acceptInvitation(user, invitedFriend, accepted_YES)
+activate ShoppingManagementController
+ShoppingManagementController->InvitationManagerService: acceptInvitation(user, invitedFriend)
+InvitationManagerService->UserRepository: getUser(userId)
+UserRepository->UserStore: getUserDetails(user)
+UserStore-->UserRepository:Return user details
+UserRepository-->InvitationManagerService:Return User
+InvitationManagerService->UserRepository:addFriend(invitedFriend)
+UserRepository->ShoppingDB:saverUser(user)
+ShoppingDB-->UserRepository: saved OK
+UserRepository --> InvitationManagerService: Friend Added
+InvitationManagerService --> ShoppingManagementController: Friend Added
+autonumber resume "<font color=blue><b>Message "
+ShoppingManagementController --> ShoppingListApp: HTTP_OK
+deactivate ShoppingManagementController
+ShoppingListApp-->Friend: Adding confirmation
+deactivate ShoppingListApp
+@enduml

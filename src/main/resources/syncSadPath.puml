@@ -1,0 +1,51 @@
+@startuml
+hide footbox
+title Syncrhonize data
+autonumber
+actor User
+box "Client" #LightBlue
+boundary ShoppingListApp
+database IndexedDB
+end box
+box "Backend"
+control ShoppingManagementController
+control ShoppingListService
+control SynchronizerEngine
+control ShoppingRepository
+database ShoppingListDB
+end box
+group when online
+ShoppingListApp->ShoppingListApp: isOnline
+activate ShoppingListApp #DarkSalmon
+ShoppingListApp->IndexedDB: getModifiedItems
+IndexedDB-->ShoppingListApp: returnModifiedItemList
+loop for each modified Item and HTTP_OK response
+ShoppingListApp->ShoppingManagementController:persistModifiedItem(Item)
+activate ShoppingManagementController
+activate ShoppingListService
+ShoppingManagementController->ShoppingListService:synchronizeItem(Item)
+activate ShoppingListService
+ShoppingListService->ShoppingRepository:getItemDetails(itemId)
+ShoppingRepository->ShoppingListDB:getItem(itemId)
+ShoppingListDB-->ShoppingRepository: return persistedItem
+ShoppingRepository-->ShoppingListService: return persistedItem
+deactivate ShoppingListService
+ShoppingListService->SynchronizerEngine:synchronizeItems(offlineItem, persistedItem)
+activate ShoppingListService #LightBlue
+activate SynchronizerEngine
+SynchronizerEngine->SynchronizerEngine:Check if has to sychronize
+note left: check if last update  is more recent than the one in DB
+SynchronizerEngine->SynchronizerEngine:Check if possible to sychronize
+note left: check if there is any merge conflict
+SynchronizerEngine--[#red]>ShoppingListService: not possible to merge
+deactivate SynchronizerEngine
+deactivate ShoppingListService #LightBlue
+autonumber resume "<font color=red><b>Error "
+ShoppingListService-->ShoppingManagementController: NOT sychronized On DB
+deactivate ShoppingListService
+ShoppingManagementController-->ShoppingListApp: HTTP_KO
+ShoppingListApp--[#red]>User: notified sync has not been possible
+end
+deactivate ShoppingListApp
+end
+@enduml

@@ -1,0 +1,45 @@
+@startuml
+hide footbox
+title Accept Invitation: Refuse invitation
+autonumber
+actor Friend
+boundary Device
+box "Client" #LightBlue
+boundary ShoppingListApp
+end box
+box "BackEnd"
+control UserStore
+control ShoppingManagementController
+control InvitationService
+boundary SMSClient
+Friend->Device:Click on invitation
+Device->ShoppingListApp: Open App
+activate ShoppingListApp
+ShoppingListApp-->Friend: Show login
+activate ShoppingListApp #DarkSalmon
+Friend->ShoppingListApp: Login
+ShoppingListApp->UserStore:Login
+activate UserStore
+UserStore-->ShoppingListApp: Login OK
+deactivate UserStore
+ShoppingListApp -> ShoppingListApp: Redirect accept invitation
+ShoppingListApp-->Friend: Show accept invitation page
+deactivate ShoppingListApp #DarkSalmon
+Friend->ShoppingListApp: Accept invitation
+activate ShoppingListApp #DarkSalmon
+ShoppingListApp->ShoppingManagementController: acceptInvitation(user, invitedFriend, accepted_NOT)
+activate ShoppingManagementController
+ShoppingManagementController->InvitationService: refuseInvitation(user)
+activate InvitationService
+InvitationService->SMSClient:sendMsgRefuseInvitation
+SMSClient--> InvitationService: sent
+InvitationService--> ShoppingManagementController
+deactivate InvitationService
+autonumber resume "<font color=blue><b>Message "
+ShoppingManagementController-->ShoppingListApp
+deactivate ShoppingManagementController
+end box
+deactivate ShoppingListApp #DarkSalmon
+ShoppingListApp-->Friend: Successfully refused
+deactivate ShoppingListApp
+@enduml

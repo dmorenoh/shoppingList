@@ -1,0 +1,15 @@
+@startuml
+actor User
+boundary ShoppingListApp
+control ShoppingListController
+control ShoppingListService
+control ItemService
+entity ShoppingList
+entity Item
+User -> ShoppingListApp: submitShoppingList
+ShoppingListApp -> ShoppingListController: synchronizeAndPersistList
+ShoppingListController -> ShoppingListService: synchronizeAndPersistList
+ShoppingListService -> ItemService: synchronizeItem
+
+
+@enduml

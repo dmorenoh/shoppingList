@@ -1,0 +1,33 @@
+@startuml
+hide footbox
+title Invite a Friend: Invitation Successfully SENT
+autonumber
+actor User
+box "Client" #LightBlue
+boundary App
+end box
+box "BackEnd"
+control ShoppingManagementController
+control ShoppingService
+boundary SMSClient
+database ShoppingDataBase
+end box
+User -> App: Send Invitation by phone number
+activate App
+App -> ShoppingManagementController: sendInvitation (telephoneNumber)
+activate ShoppingManagementController
+ShoppingManagementController -> ShoppingService: sendInvitation(telephoneNumber)
+activate ShoppingService
+ShoppingService-> ShoppingService:checkInvitationLimit
+ShoppingService -> SMSClient: sendMessage(telephoneNumber, body)
+SMSClient-->ShoppingService: Successful Sent
+ShoppingService -> ShoppingDataBase: saveInvitation
+ShoppingDataBase --> ShoppingService: Saved
+ShoppingService --> ShoppingManagementController
+deactivate ShoppingService
+autonumber resume "<font color=blue><b>Message "
+ShoppingManagementController --> App: HTTP_OK
+deactivate ShoppingManagementController
+App --> User: Invitation has been sent
+deactivate App
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+hide footbox
+title Invite a Friend: Invitation Un-Successfully SENT
+autonumber
+actor User
+box "Client" #LightBlue
+boundary App
+end box
+box "BackEnd"
+control ShoppingManagementController
+control ShoppingService
+boundary SMSClient
+end box
+User -> App: Send Invitation by phone number
+activate App
+App -> ShoppingManagementController: sendInvitation (telephoneNumber)
+activate ShoppingManagementController
+ShoppingManagementController -> ShoppingService: sendInvitation(telephoneNumber)
+ShoppingService-> ShoppingService:checkInvitationLimit
+ShoppingService -> SMSClient: sendMessage(telephoneNumber, body)
+SMSClient-->ShoppingService: Failed to send
+ShoppingService --> ShoppingManagementController
+autonumber resume "<font color=red><b>Error "
+ShoppingManagementController --> App: HTTP_KO
+deactivate ShoppingManagementController
+App --> User: Invitation has NOT been sent
+deactivate App
+@enduml

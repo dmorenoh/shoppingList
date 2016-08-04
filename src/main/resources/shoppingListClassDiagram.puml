@@ -1,0 +1,38 @@
+@startuml
+class User
+class ShoppingList
+class Item
+
+User *-- User: has one or two friends >
+User *-- ShoppingList: has >
+ShoppingList -- User: has a userOwner >
+ShoppingList *-- Item: has >
+
+
+
+class User {
+    userName
+    password
+    personName
+    User[] friends
+    ShoppingList[] shoppingLists
+}
+
+class ShoppingList {
+    name
+    userOwner
+    createdDate
+    updatedDate
+    synchronizedDate
+}
+
+class Item {
+    name
+    checked
+    deleted
+    hasBeenModified
+    lastUpdated
+    lastSynchronizedDate
+
+}
+@enduml
